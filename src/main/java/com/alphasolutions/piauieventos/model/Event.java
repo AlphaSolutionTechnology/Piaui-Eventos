@@ -35,5 +35,5 @@ public class Event {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_location", nullable = false)
-    private Location location;
+    private EventLocation location;
 }
