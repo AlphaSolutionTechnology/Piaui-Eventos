@@ -4,8 +4,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class EventResponseDTO {
-    Long id;
+public class EventRequestDTO {
     String name;
     String description;
     String imageUrl;

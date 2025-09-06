@@ -22,7 +22,7 @@ public class Event {
     private String description;
 
     @Column(name = "imagem_url", length = 1000)
-    private String imagemUrl;
+    private String imageUrl;
 
     @Column(name = "event_date", nullable = false)
     private LocalDateTime eventDate;
