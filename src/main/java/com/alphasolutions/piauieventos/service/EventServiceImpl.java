@@ -2,6 +2,8 @@ package com.alphasolutions.piauieventos.service;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.exception.EventNotFoundException;
+import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
@@ -29,7 +31,7 @@ public class EventServiceImpl implements EventService {
 
         // Get Event Location
         EventLocation location = locationRepository.findById(dto.getLocationId())
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId()));
 
         // Create event
         Event event = eventMapper.toEntity(dto, location);
@@ -39,6 +41,18 @@ public class EventServiceImpl implements EventService {
 
         // convert to DTO Response
         return eventMapper.toDTO(savedEvent);
+    }
+
+    @Override
+    public EventResponseDTO update(EventResponseDTO dto) {
+        Event event = eventRepository.findById(dto.getId())
+                                     .orElseThrow(() -> new LocationNotFoundException("Event not found with id: " + dto.getId()));
+
+        if (event == null) {
+            throw new EventNotFoundException("Event not found with id: " + dto.getId());
+        }
+        return null;
+        //TODO
     }
 
 }

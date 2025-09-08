@@ -5,6 +5,7 @@ import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 
 public interface EventService {
     EventResponseDTO create(EventRequestDTO dto);
+    EventResponseDTO update(EventResponseDTO dto);
 }
 
 
