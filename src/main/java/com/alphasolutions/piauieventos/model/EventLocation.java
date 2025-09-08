@@ -13,8 +13,8 @@ public class EventLocation {
     @Column(name = "id_location")
     private Long id;
 
-    @Column(name = "latitute")
-    private Double latitute;
+    @Column(name = "latitude")
+    private Double latitude;
 
     @Column(name = "longitude")
     private Double longitude;
