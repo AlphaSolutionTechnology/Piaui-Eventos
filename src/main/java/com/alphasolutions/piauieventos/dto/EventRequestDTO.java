@@ -1,12 +1,10 @@
 package com.alphasolutions.piauieventos.dto;
 
-import com.alphasolutions.piauieventos.model.Event;
 import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class EventResponseDTO {
-    Long id;
+public class EventRequestDTO {
     String name;
     String description;
     String imageUrl;
@@ -14,5 +12,4 @@ public class EventResponseDTO {
     String eventType;
     Integer maxSubs;
     Long locationId;
-
 }

@@ -1,4 +1,10 @@
 package com.alphasolutions.piauieventos.service;
 
-public class EventService {
+import com.alphasolutions.piauieventos.dto.EventRequestDTO;
+import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+
+public interface EventService {
+    EventResponseDTO create(EventRequestDTO dto);
 }
+
+

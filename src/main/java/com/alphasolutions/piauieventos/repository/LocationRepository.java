@@ -1,9 +1,10 @@
 package com.alphasolutions.piauieventos.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.alphasolutions.piauieventos.model.Event;
+import com.alphasolutions.piauieventos.model.EventLocation;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface LocationRepository extends JpaRepository<EventLocation, Long> {
+
 }
