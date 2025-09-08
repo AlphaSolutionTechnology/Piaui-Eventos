@@ -41,4 +41,16 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDTO(savedEvent);
     }
 
+    @Override
+    public void delete(Long id) {
+
+        // Verify if the event exists
+        if (!eventRepository.existsById(id)) {
+            throw new RuntimeException("Event not found");
+        }
+
+        // Delete event
+        eventRepository.deleteById(id);
+    }
+
 }
