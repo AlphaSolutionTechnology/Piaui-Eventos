@@ -15,15 +15,4 @@ public class EventResponseDTO {
     Integer maxSubs;
     Long locationId;
 
-    public EventResponseDTO(Event event) {
-        this.id          = event.getId();
-        this.name        = event.getName();
-        this.description = event.getDescription();
-        this.imageUrl    = event.getImageUrl();
-        this.eventDate   = event.getEventDate();
-        this.eventType   = event.getEventType();
-        this.maxSubs     = event.getMaxSubs();
-        this.locationId  = event.getLocation().getId();
-
-    }
 }
