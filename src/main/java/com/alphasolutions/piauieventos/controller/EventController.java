@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/events")
 public class EventController {
@@ -28,5 +30,12 @@ public class EventController {
         eventService.delete(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EventResponseDTO>> listEvents() {
+        List<EventResponseDTO> events = eventService.listEvents();
+
+        return ResponseEntity.ok(events);
     }
 }

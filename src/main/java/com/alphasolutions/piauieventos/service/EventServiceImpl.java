@@ -9,6 +9,8 @@ import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EventServiceImpl implements EventService {
 
@@ -51,6 +53,14 @@ public class EventServiceImpl implements EventService {
 
         // Delete event
         eventRepository.deleteById(id);
+    }
+
+    @Override
+    public List<EventResponseDTO> listEvents() {
+        // Get all events
+        List<Event> events = eventRepository.findAll();
+
+        return eventMapper.toDTO(events);
     }
 
 }
