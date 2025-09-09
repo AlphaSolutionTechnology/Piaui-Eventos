@@ -2,12 +2,15 @@ package com.alphasolutions.piauieventos.service;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.LocationRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -61,6 +64,18 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAll();
 
         return eventMapper.toDTO(events);
+    }
+
+    @Override
+    public EventResponseDTO updateEvent(Long eventId, EventUpdateDTO eventUpdateDTO) {
+        Event existingEvent = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found"));
+
+        eventMapper.updateEntityFromDto(eventUpdateDTO, existingEvent);
+
+        Event updatedEvent = eventRepository.save(existingEvent);
+
+        return eventMapper.toDto(updatedEvent);
     }
 
 }

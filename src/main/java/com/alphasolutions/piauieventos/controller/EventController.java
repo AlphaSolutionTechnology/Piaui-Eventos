@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
 import com.alphasolutions.piauieventos.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +38,12 @@ public class EventController {
         List<EventResponseDTO> events = eventService.listEvents();
 
         return ResponseEntity.ok(events);
+    }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long eventId, @RequestBody EventUpdateDTO eventUpdateDTO) {
+        EventResponseDTO updatedEvent = eventService.updateEvent(eventId, eventUpdateDTO);
+
+        return ResponseEntity.ok(updatedEvent);
     }
 }

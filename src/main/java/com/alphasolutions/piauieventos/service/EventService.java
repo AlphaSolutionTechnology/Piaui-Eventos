@@ -2,6 +2,8 @@ package com.alphasolutions.piauieventos.service;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
+
 import java.util.List;
 
 public interface EventService {
@@ -13,6 +15,9 @@ public interface EventService {
 
     // List all events
     List<EventResponseDTO> listEvents();
+
+    // Update event
+    EventResponseDTO updateEvent(Long eventId, EventUpdateDTO eventUpdateDTO);
 }
 
 
