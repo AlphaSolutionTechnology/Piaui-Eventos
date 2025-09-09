@@ -31,29 +31,23 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventResponseDTO create(EventRequestDTO dto) {
 
-        // Get Event Location
         EventLocation location = locationRepository.findById(dto.getLocationId())
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId()));
 
-        // Create event
         Event event = eventMapper.toEntity(dto, location);
 
-        // save event
         Event savedEvent = eventRepository.save(event);
 
-        // convert to DTO Response
         return eventMapper.toDTO(savedEvent);
     }
 
     @Override
     public void delete(Long id) {
 
-        // Verify if the event exists
         if (!eventRepository.existsById(id)) {
-            throw new RuntimeException("Event not found");
+            throw new EventNotFoundException("Event not found with id: " + id);
         }
 
-        // Delete event
         eventRepository.deleteById(id);
     }
 
@@ -66,15 +60,22 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventResponseDTO update(EventResponseDTO dto) {
-        Event event = eventRepository.findById(dto.getId())
-                                     .orElseThrow(() -> new LocationNotFoundException("Event not found with id: " + dto.getId()));
+    public EventResponseDTO update(Long id, EventRequestDTO dto) {
+        Event existing = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        if (event == null) {
-            throw new EventNotFoundException("Event not found with id: " + dto.getId());
-        }
-        return null;
-        //TODO
+        EventLocation location = locationRepository.findById(dto.getLocationId())
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId())) ;
+
+        existing.setName(dto.getName());
+        existing.setDescription(dto.getDescription());
+        existing.setImageUrl(dto.getImageUrl());
+        existing.setEventDate(dto.getEventDate());
+        existing.setEventType(dto.getEventType());
+        existing.setMaxSubs(dto.getMaxSubs());
+        existing.setLocation(location);
+
+        Event saved = eventRepository.save(existing);
+        return eventMapper.toDTO(saved);
     }
-
 }
