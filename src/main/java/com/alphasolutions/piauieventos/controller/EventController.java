@@ -4,6 +4,7 @@ import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.service.EventService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,28 +20,28 @@ public class EventController {
         this.eventService = eventService;
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventResponseDTO> createEvent(@RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.create(dto);
 
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.delete(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping
+    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EventResponseDTO>> listEvents() {
         List<EventResponseDTO> events = eventService.listEvents();
 
         return ResponseEntity.ok(events);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}",consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long id, @RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.update(id, dto);
         return ResponseEntity.ok(response);
