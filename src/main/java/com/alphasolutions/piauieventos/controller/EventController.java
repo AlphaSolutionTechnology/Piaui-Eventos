@@ -8,9 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/events")
+@RequestMapping("/api/events")
 public class EventController {
     private final EventService eventService;
 
@@ -37,5 +38,11 @@ public class EventController {
         List<EventResponseDTO> events = eventService.listEvents();
 
         return ResponseEntity.ok(events);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long id, @RequestBody EventRequestDTO dto) {
+        EventResponseDTO response = eventService.update(id, dto);
+        return ResponseEntity.ok(response);
     }
 }

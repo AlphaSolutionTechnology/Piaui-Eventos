@@ -5,14 +5,8 @@ import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import java.util.List;
 
 public interface EventService {
-    // Create event
     EventResponseDTO create(EventRequestDTO dto);
-
-    // Delete event
+    EventResponseDTO update(Long id, EventRequestDTO dto);
     void delete(Long id);
-
-    // List all events
     List<EventResponseDTO> listEvents();
 }
-
-

@@ -1,9 +1,13 @@
 package com.alphasolutions.piauieventos.dto;
 
 import java.time.LocalDateTime;
-import lombok.Data;
 
-@Data
+import lombok.*;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventRequestDTO {
     String name;
     String description;
