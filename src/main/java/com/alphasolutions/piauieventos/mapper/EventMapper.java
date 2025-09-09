@@ -4,6 +4,7 @@ import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
+import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -15,4 +16,6 @@ public interface EventMapper {
 
     @Mapping(target = "locationId", source = "location.id")
     EventResponseDTO toDTO(Event event);
+
+    List<EventResponseDTO> toDTO(List<Event> events);
 }

@@ -11,6 +11,8 @@ import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class EventServiceImpl implements EventService {
 
@@ -41,6 +43,26 @@ public class EventServiceImpl implements EventService {
 
         // convert to DTO Response
         return eventMapper.toDTO(savedEvent);
+    }
+
+    @Override
+    public void delete(Long id) {
+
+        // Verify if the event exists
+        if (!eventRepository.existsById(id)) {
+            throw new RuntimeException("Event not found");
+        }
+
+        // Delete event
+        eventRepository.deleteById(id);
+    }
+
+    @Override
+    public List<EventResponseDTO> listEvents() {
+        // Get all events
+        List<Event> events = eventRepository.findAll();
+
+        return eventMapper.toDTO(events);
     }
 
     @Override
