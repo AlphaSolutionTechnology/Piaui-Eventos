@@ -15,5 +15,5 @@ public class EventRequestDTO {
     LocalDateTime eventDate;
     String eventType;
     Integer maxSubs;
-    Long locationId;
+    EventLocationDTO eventLocation;
 }

@@ -21,7 +21,7 @@ public class Event {
     @Column(name = "description", length = 1000)
     private String description;
 
-    @Column(name = "imagem_url", length = 1000)
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
     @Column(name = "event_date", nullable = false)
