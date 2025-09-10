@@ -8,7 +8,7 @@ import com.alphasolutions.piauieventos.mapper.EventMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.repository.EventRepository;
-import com.alphasolutions.piauieventos.repository.LocationRepository;
+import com.alphasolutions.piauieventos.repository.EventLocationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,24 +17,23 @@ import java.util.List;
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final LocationRepository locationRepository;
+    private final EventLocationRepository eventLocationRepository;
     private final EventMapper eventMapper;
+    private final EventLocationService eventLocationService;
 
     public EventServiceImpl(EventRepository eventRepository,
-                            LocationRepository locationRepository,
-                            EventMapper eventMapper) {
+                            EventLocationRepository eventLocationRepository,
+                            EventMapper eventMapper, EventLocationService eventLocationService) {
         this.eventRepository    = eventRepository;
-        this.locationRepository = locationRepository;
+        this.eventLocationRepository = eventLocationRepository;
         this.eventMapper        = eventMapper;
+        this.eventLocationService = eventLocationService;
     }
 
     @Override
     public EventResponseDTO create(EventRequestDTO dto) {
-
-        EventLocation location = locationRepository.findById(dto.getLocationId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId()));
-
-        Event event = eventMapper.toEntity(dto, location);
+        EventLocation eventLocation = eventLocationService.addLocation(dto.getEventLocation());
+        Event event = eventMapper.toEntity(dto, eventLocation);
 
         Event savedEvent = eventRepository.save(event);
 
@@ -64,8 +63,8 @@ public class EventServiceImpl implements EventService {
         Event existing = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        EventLocation location = locationRepository.findById(dto.getLocationId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId())) ;
+        EventLocation location = eventLocationRepository.findById(dto.getEventLocation().getId())
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocation().getId())) ;
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());

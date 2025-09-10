@@ -25,7 +25,5 @@ public class EventLocation {
     @Column(name = "place_name", length = 150)
     private String placeName;
 
-    @Column(name = "category", length = 100)
-    private String category;
 
 }

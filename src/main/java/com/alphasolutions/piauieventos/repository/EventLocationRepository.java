@@ -5,6 +5,6 @@ import com.alphasolutions.piauieventos.model.EventLocation;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LocationRepository extends JpaRepository<EventLocation, Long> {
+public interface EventLocationRepository extends JpaRepository<EventLocation, Long> {
 
 }
