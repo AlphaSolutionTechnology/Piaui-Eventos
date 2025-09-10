@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.dto;
 
 import java.time.LocalDateTime;
 
+import com.alphasolutions.piauieventos.model.EventLocation;
 import lombok.*;
 
 @Getter
@@ -15,5 +16,5 @@ public class EventRequestDTO {
     LocalDateTime eventDate;
     String eventType;
     Integer maxSubs;
-    EventLocationDTO eventLocation;
+    EventLocation eventLocation;
 }

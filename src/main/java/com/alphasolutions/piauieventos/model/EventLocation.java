@@ -19,7 +19,7 @@ public class EventLocation {
     @Column(name = "longitude")
     private Double longitude;
 
-    @Column(name = "full_adress", length = 200)
+    @Column(name = "full_address", length = 200)
     private String fullAdress;
 
     @Column(name = "place_name", length = 150)
