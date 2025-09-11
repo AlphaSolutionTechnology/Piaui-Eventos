@@ -32,14 +32,13 @@ class EventControllerTest {
     @Test
     void testCreateEvent() throws Exception {
         EventRequestDTO request = new EventRequestDTO();
-        // set fields as needed
         EventResponseDTO response = new EventResponseDTO();
         Mockito.when(eventService.create(any(EventRequestDTO.class))).thenReturn(response);
 
         mockMvc.perform(post("/api/events")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -69,4 +68,3 @@ class EventControllerTest {
                 .andExpect(status().isOk());
     }
 }
-

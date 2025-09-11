@@ -24,7 +24,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> createEvent(@RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.create(dto);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

@@ -4,6 +4,7 @@ import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.exception.EventNotFoundException;
 import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
+import com.alphasolutions.piauieventos.mapper.EventLocationMapper;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
@@ -20,20 +21,24 @@ public class EventServiceImpl implements EventService {
     private final EventLocationRepository eventLocationRepository;
     private final EventMapper eventMapper;
     private final EventLocationService eventLocationService;
+    private final EventLocationMapper eventLocationMapper;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
-                            EventMapper eventMapper, EventLocationService eventLocationService) {
+                            EventMapper eventMapper, EventLocationService eventLocationService, EventLocationMapper eventLocationMapper) {
         this.eventRepository    = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventMapper        = eventMapper;
         this.eventLocationService = eventLocationService;
+        this.eventLocationMapper = eventLocationMapper;
     }
 
     @Override
     public EventResponseDTO create(EventRequestDTO dto) {
-        EventLocation eventLocation = eventLocationService.addLocation(dto.getEventLocation());
-        Event event = eventMapper.toEntity(dto, eventLocation);
+        EventLocation eventLocation = eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
+
+        eventLocationService.addLocation(dto.getEventLocationDTO());
+        Event event = eventMapper.toEadntity(dto, eventLocation);
 
         Event savedEvent = eventRepository.save(event);
 
@@ -63,8 +68,8 @@ public class EventServiceImpl implements EventService {
         Event existing = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        EventLocation location = eventLocationRepository.findById(dto.getEventLocation().getId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocation().getId())) ;
+        EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id())) ;
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());

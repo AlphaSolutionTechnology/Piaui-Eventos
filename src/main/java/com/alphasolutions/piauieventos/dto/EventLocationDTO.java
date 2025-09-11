@@ -1,7 +1,7 @@
 package com.alphasolutions.piauieventos.dto;
 
 
-public record EventLocationDTO(
+public record EventLocationDTO(Long id,
                                String placeName,
                                String latitude,
                                String longitude,
