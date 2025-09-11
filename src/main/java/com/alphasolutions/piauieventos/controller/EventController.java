@@ -46,4 +46,10 @@ public class EventController {
         EventResponseDTO response = eventService.update(id, dto);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<EventResponseDTO> findEventById(@PathVariable Long id) {
+        EventResponseDTO response = eventService.findById(id);
+        return ResponseEntity.ok(response);
+    }
 }
