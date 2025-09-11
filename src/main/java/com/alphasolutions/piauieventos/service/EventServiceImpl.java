@@ -78,4 +78,12 @@ public class EventServiceImpl implements EventService {
         Event saved = eventRepository.save(existing);
         return eventMapper.toDTO(saved);
     }
+
+    @Override
+    public EventResponseDTO findById(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
+
+        return eventMapper.toDTO(event);
+    }
 }
