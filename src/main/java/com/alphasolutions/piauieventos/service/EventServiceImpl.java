@@ -38,7 +38,7 @@ public class EventServiceImpl implements EventService {
         EventLocation eventLocation = eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
 
         eventLocationService.addLocation(dto.getEventLocationDTO());
-        Event event = eventMapper.toEadntity(dto, eventLocation);
+        Event event = eventMapper.toEntity(dto, eventLocation);
 
         Event savedEvent = eventRepository.save(event);
 
