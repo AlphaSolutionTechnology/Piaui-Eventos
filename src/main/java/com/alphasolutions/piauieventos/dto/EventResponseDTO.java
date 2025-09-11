@@ -1,18 +1,14 @@
 package com.alphasolutions.piauieventos.dto;
 
-import com.alphasolutions.piauieventos.model.Event;
 import java.time.LocalDateTime;
-import lombok.Data;
 
-@Data
-public class EventResponseDTO {
-    Long id;
-    String name;
-    String description;
-    String imageUrl;
-    LocalDateTime eventDate;
-    String eventType;
-    Integer maxSubs;
-    Long locationId;
-
-}
+public record EventResponseDTO(
+        Long id,
+        String name,
+        String description,
+        String imageUrl,
+        LocalDateTime eventDate,
+        String eventType,
+        Integer maxSubs,
+        Long locationId
+) {}
