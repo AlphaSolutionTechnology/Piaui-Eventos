@@ -14,5 +14,6 @@ public class EventResponseDTO {
     String eventType;
     Integer maxSubs;
     Long locationId;
+    Integer version;
 
 }

@@ -10,11 +10,13 @@ import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.EventLocationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -34,12 +36,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
-        EventLocation eventLocation = eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
-
-        eventLocationService.addLocation(dto.getEventLocationDTO());
+        eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
+        EventLocation eventLocation;
+        eventLocation = eventLocationService.addLocation(dto.getEventLocationDTO());
         Event event = eventMapper.toEntity(dto, eventLocation);
-
+        event.setId(null);
+        event.setVersion(null);
+        event.setLocation(eventLocation);
         Event savedEvent = eventRepository.save(event);
 
         return eventMapper.toDTO(savedEvent);
