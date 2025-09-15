@@ -34,7 +34,7 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EventResponseDTO>> listEvents() {
         List<EventResponseDTO> events = eventService.listEvents();
 

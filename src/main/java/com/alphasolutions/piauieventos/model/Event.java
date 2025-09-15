@@ -33,6 +33,10 @@ public class Event {
     @Column(name = "max_subs")
     private Integer maxSubs;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_location", nullable = false)
     private EventLocation location;
