@@ -1,4 +1,4 @@
-package com.alphasolutions.piauieventos.service;
+package com.alphasolutions.piauieventos.service.event;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
@@ -62,7 +62,6 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponseDTO> listEvents() {
-        // Get all events
         List<Event> events = eventRepository.findAll();
 
         return eventMapper.toDTO(events);

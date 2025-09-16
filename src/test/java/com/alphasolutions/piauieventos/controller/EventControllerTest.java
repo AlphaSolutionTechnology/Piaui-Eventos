@@ -2,7 +2,7 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
-import com.alphasolutions.piauieventos.service.EventService;
+import com.alphasolutions.piauieventos.service.event.EventService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

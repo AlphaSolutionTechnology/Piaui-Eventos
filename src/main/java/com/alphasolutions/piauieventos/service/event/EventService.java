@@ -1,4 +1,4 @@
-package com.alphasolutions.piauieventos.service;
+package com.alphasolutions.piauieventos.service.event;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;

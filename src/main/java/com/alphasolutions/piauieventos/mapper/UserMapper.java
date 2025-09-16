@@ -12,7 +12,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
-    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "userRole", ignore = true)
     UserModel toEntity(UserRequestDTO dto);
 
     UserResponseDTO toDto(UserModel entity);

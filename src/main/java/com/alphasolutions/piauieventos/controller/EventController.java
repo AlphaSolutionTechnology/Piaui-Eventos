@@ -2,14 +2,13 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
-import com.alphasolutions.piauieventos.service.EventService;
+import com.alphasolutions.piauieventos.service.event.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/events")

@@ -1,7 +1,6 @@
-package com.alphasolutions.piauieventos.service;
+package com.alphasolutions.piauieventos.service.viacep;
 
 import com.alphasolutions.piauieventos.dto.ViaCepResponse;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestTemplate;

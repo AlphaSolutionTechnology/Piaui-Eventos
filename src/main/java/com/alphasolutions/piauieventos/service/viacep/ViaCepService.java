@@ -1,4 +1,4 @@
-package com.alphasolutions.piauieventos.service;
+package com.alphasolutions.piauieventos.service.viacep;
 
 import com.alphasolutions.piauieventos.dto.ViaCepResponse;
 import org.springframework.stereotype.Service;
