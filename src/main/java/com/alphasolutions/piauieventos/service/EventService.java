@@ -9,4 +9,5 @@ public interface EventService {
     EventResponseDTO update(Long id, EventRequestDTO dto);
     void delete(Long id);
     List<EventResponseDTO> listEvents();
+    EventResponseDTO findById(Long id);
 }

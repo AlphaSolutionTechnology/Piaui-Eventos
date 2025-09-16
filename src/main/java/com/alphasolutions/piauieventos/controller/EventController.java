@@ -24,7 +24,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> createEvent(@RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.create(dto);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @DeleteMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -34,7 +34,7 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<EventResponseDTO>> listEvents() {
         List<EventResponseDTO> events = eventService.listEvents();
 
@@ -44,6 +44,12 @@ public class EventController {
     @PutMapping(value = "/{id}",consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long id, @RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.update(id, dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<EventResponseDTO> findEventById(@PathVariable Long id) {
+        EventResponseDTO response = eventService.findById(id);
         return ResponseEntity.ok(response);
     }
 }

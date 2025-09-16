@@ -4,38 +4,47 @@ import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.exception.EventNotFoundException;
 import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
+import com.alphasolutions.piauieventos.mapper.EventLocationMapper;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.repository.EventRepository;
-import com.alphasolutions.piauieventos.repository.LocationRepository;
+import com.alphasolutions.piauieventos.repository.EventLocationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
-    private final LocationRepository locationRepository;
+    private final EventLocationRepository eventLocationRepository;
     private final EventMapper eventMapper;
+    private final EventLocationService eventLocationService;
+    private final EventLocationMapper eventLocationMapper;
 
     public EventServiceImpl(EventRepository eventRepository,
-                            LocationRepository locationRepository,
-                            EventMapper eventMapper) {
+                            EventLocationRepository eventLocationRepository,
+                            EventMapper eventMapper, EventLocationService eventLocationService, EventLocationMapper eventLocationMapper) {
         this.eventRepository    = eventRepository;
-        this.locationRepository = locationRepository;
+        this.eventLocationRepository = eventLocationRepository;
         this.eventMapper        = eventMapper;
+        this.eventLocationService = eventLocationService;
+        this.eventLocationMapper = eventLocationMapper;
     }
 
     @Override
+    @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
-
-        EventLocation location = locationRepository.findById(dto.getLocationId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId()));
-
-        Event event = eventMapper.toEntity(dto, location);
-
+        eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
+        EventLocation eventLocation;
+        eventLocation = eventLocationService.addLocation(dto.getEventLocationDTO());
+        Event event = eventMapper.toEntity(dto, eventLocation);
+        event.setId(null);
+        event.setVersion(null);
+        event.setLocation(eventLocation);
         Event savedEvent = eventRepository.save(event);
 
         return eventMapper.toDTO(savedEvent);
@@ -64,8 +73,8 @@ public class EventServiceImpl implements EventService {
         Event existing = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        EventLocation location = locationRepository.findById(dto.getLocationId())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getLocationId())) ;
+        EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id())) ;
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
@@ -77,5 +86,13 @@ public class EventServiceImpl implements EventService {
 
         Event saved = eventRepository.save(existing);
         return eventMapper.toDTO(saved);
+    }
+
+    @Override
+    public EventResponseDTO findById(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
+
+        return eventMapper.toDTO(event);
     }
 }
