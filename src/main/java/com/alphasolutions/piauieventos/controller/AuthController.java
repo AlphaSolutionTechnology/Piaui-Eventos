@@ -5,8 +5,7 @@ import com.alphasolutions.piauieventos.dto.LoginResponseDTO;
 import com.alphasolutions.piauieventos.dto.RefreshRequestDTO;
 import com.alphasolutions.piauieventos.dto.RefreshResponseDTO;
 import com.alphasolutions.piauieventos.service.auth.AuthService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
+import com.alphasolutions.piauieventos.service.auth.TokenHttpService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,98 +17,42 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final TokenHttpService tokenHttpService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, TokenHttpService tokenHttpService) {
         this.authService = authService;
+        this.tokenHttpService = tokenHttpService;
     }
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO request, HttpServletResponse response) {
         LoginResponseDTO loginResponse = authService.login(request);
-
-        Cookie accessTokenCookie = new Cookie("accessToken", loginResponse.accessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(15 * 60);
-        accessTokenCookie.setAttribute("SameSite", "Strict");
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", loginResponse.refreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-        refreshTokenCookie.setAttribute("SameSite", "Strict");
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        return ResponseEntity.ok()
-                .body(Map.of("message", "Login realizado com sucesso"));
+        tokenHttpService.writeAuthCookies(response, loginResponse.accessToken(), loginResponse.refreshToken());
+        tokenHttpService.writeAuthHeader(response, loginResponse.accessToken());
+        return ResponseEntity.ok(Map.of(
+                "message", "Login realizado com sucesso",
+                "accessToken", loginResponse.accessToken()
+        ));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = extractRefreshTokenFromCookies(request);
-
+    public ResponseEntity<Map<String, String>> refresh(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+                                                       HttpServletResponse response) {
         if (refreshToken == null) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Refresh token não encontrado"));
+            return ResponseEntity.badRequest().body(Map.of("error", "Refresh token não encontrado"));
         }
-
-        RefreshRequestDTO refreshRequest = new RefreshRequestDTO(refreshToken);
-        RefreshResponseDTO refreshResponse = authService.refresh(refreshRequest);
-
-        Cookie accessTokenCookie = new Cookie("accessToken", refreshResponse.accessToken());
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(15 * 60);
-        accessTokenCookie.setAttribute("SameSite", "Strict");
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshResponse.refreshToken());
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60);
-        refreshTokenCookie.setAttribute("SameSite", "Strict");
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        return ResponseEntity.ok()
-                .body(Map.of("message", "Tokens renovados com sucesso"));
-    }
-
-    private String extractRefreshTokenFromCookies(HttpServletRequest request) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
+        RefreshResponseDTO refreshResponse = authService.refresh(new RefreshRequestDTO(refreshToken));
+        tokenHttpService.writeAuthCookies(response, refreshResponse.accessToken(), refreshResponse.refreshToken());
+        tokenHttpService.writeAuthHeader(response, refreshResponse.accessToken());
+        return ResponseEntity.ok(Map.of(
+                "message", "Tokens renovados com sucesso",
+                "accessToken", refreshResponse.accessToken()
+        ));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
-        Cookie accessTokenCookie = new Cookie("accessToken", "");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(true);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setMaxAge(0);
-
-        Cookie refreshTokenCookie = new Cookie("refreshToken", "");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);
-
-        response.addCookie(accessTokenCookie);
-        response.addCookie(refreshTokenCookie);
-
-        return ResponseEntity.ok()
-                .body(Map.of("message", "Logout realizado com sucesso"));
+        tokenHttpService.clearAuthCookies(response);
+        return ResponseEntity.ok(Map.of("message", "Logout realizado com sucesso"));
     }
 }
