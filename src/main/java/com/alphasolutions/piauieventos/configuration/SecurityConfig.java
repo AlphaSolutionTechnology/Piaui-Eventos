@@ -42,6 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
+                        .requestMatchers("/api/events/**").permitAll() // ✅ Liberar todos os endpoints de eventos
                         .requestMatchers(
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
