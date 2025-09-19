@@ -25,11 +25,11 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
-    private final EventMapper eventMapper; // Note que o MapStruct é usado aqui!
+    private final EventMapper eventMapper;
     private final EventLocationService eventLocationService;
     private final EventLocationMapper eventLocationMapper;
-    private final UserRepository userRepository; // Adicionado para o método registerUser
-    private final SubscriptionRepository subscriptionRepository; // Adicionado para o método registerUser
+    private final UserRepository userRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
