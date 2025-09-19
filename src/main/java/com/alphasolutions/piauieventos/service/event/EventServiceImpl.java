@@ -51,7 +51,7 @@ public class EventServiceImpl implements EventService {
         this.subscriptionRepository = subscriptionRepository;
     }
 
-    // Este é um exemplo de onde o MapStruct É USADO
+    // This is an example where MapStruct IS USED
     @Override
     @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
