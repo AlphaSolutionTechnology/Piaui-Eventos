@@ -2,16 +2,20 @@ package com.alphasolutions.piauieventos.service.event;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import com.alphasolutions.piauieventos.exception.EventNotFoundException;
 import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
 import com.alphasolutions.piauieventos.mapper.EventLocationMapper;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
-import com.alphasolutions.piauieventos.model.Event;
-import com.alphasolutions.piauieventos.model.EventLocation;
+import com.alphasolutions.piauieventos.model.*;
 import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.EventLocationRepository;
+import com.alphasolutions.piauieventos.repository.SubscriptionRepository;
+import com.alphasolutions.piauieventos.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -21,20 +25,29 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
-    private final EventMapper eventMapper;
+    private final EventMapper eventMapper; // Note que o MapStruct é usado aqui!
     private final EventLocationService eventLocationService;
     private final EventLocationMapper eventLocationMapper;
+    private final UserRepository userRepository; // Adicionado para o método registerUser
+    private final SubscriptionRepository subscriptionRepository; // Adicionado para o método registerUser
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
-                            EventMapper eventMapper, EventLocationService eventLocationService, EventLocationMapper eventLocationMapper) {
-        this.eventRepository    = eventRepository;
+                            EventMapper eventMapper,
+                            EventLocationService eventLocationService,
+                            EventLocationMapper eventLocationMapper,
+                            UserRepository userRepository,
+                            SubscriptionRepository subscriptionRepository) {
+        this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
-        this.eventMapper        = eventMapper;
+        this.eventMapper = eventMapper;
         this.eventLocationService = eventLocationService;
         this.eventLocationMapper = eventLocationMapper;
+        this.userRepository = userRepository;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
+    // Este é um exemplo de onde o MapStruct É USADO
     @Override
     @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
@@ -52,18 +65,15 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void delete(Long id) {
-
         if (!eventRepository.existsById(id)) {
             throw new EventNotFoundException("Event not found with id: " + id);
         }
-
         eventRepository.deleteById(id);
     }
 
     @Override
     public List<EventResponseDTO> listEvents() {
         List<Event> events = eventRepository.findAll();
-
         return eventMapper.toDTO(events);
     }
 
@@ -73,7 +83,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
         EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id())) ;
+                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id()));
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
@@ -93,5 +103,28 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
         return eventMapper.toDTO(event);
+    }
+
+    @Override
+    @Transactional
+    public void registerUser(Long eventId, UserRegistrationDTO registrationDTO) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with ID: " + eventId));
+
+        UserModel user = userRepository.findById(registrationDTO.userId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + registrationDTO.userId()));
+
+        SubscriptionId subscriptionId = new SubscriptionId(user.getId(), event.getId());
+
+        if (subscriptionRepository.existsById(subscriptionId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already registered for this event.");
+        }
+
+        Subscription subscription = new Subscription();
+        subscription.setId(subscriptionId);
+        subscription.setUser(user);
+        subscription.setEvent(event);
+
+        subscriptionRepository.save(subscription);
     }
 }
