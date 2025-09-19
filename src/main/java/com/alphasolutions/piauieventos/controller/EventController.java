@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import com.alphasolutions.piauieventos.service.event.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,5 +51,13 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> findEventById(@PathVariable Long id) {
         EventResponseDTO response = eventService.findById(id);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{eventId}/register")
+    public ResponseEntity<Void> registerUser(
+            @PathVariable Long eventId,
+            @RequestBody UserRegistrationDTO registrationDTO) {
+        eventService.registerUser(eventId, registrationDTO);
+        return ResponseEntity.ok().build();
     }
 }
