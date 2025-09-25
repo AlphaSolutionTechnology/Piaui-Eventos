@@ -7,6 +7,7 @@ import com.alphasolutions.piauieventos.model.EventLocation;
 import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface EventMapper {
@@ -18,4 +19,5 @@ public interface EventMapper {
     EventResponseDTO toDTO(Event event);
 
     List<EventResponseDTO> toDTO(List<Event> events);
+    void updateFromDto(EventRequestDTO dto, @MappingTarget Event existing);
 }

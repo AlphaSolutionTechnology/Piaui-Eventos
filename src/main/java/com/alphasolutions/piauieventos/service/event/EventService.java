@@ -3,6 +3,7 @@ package com.alphasolutions.piauieventos.service.event;
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
+import com.alphasolutions.piauieventos.dto.UserResponseDTO;
 
 import java.util.List;
 
@@ -13,4 +14,5 @@ public interface EventService {
     List<EventResponseDTO> listEvents();
     EventResponseDTO findById(Long id);
     void registerUser(Long eventId, UserRegistrationDTO registrationDTO);
+    List<UserResponseDTO> listRegisteredUsers(Long eventId);
 }

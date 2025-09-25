@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring",
         uses = {RoleMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -16,5 +18,7 @@ public interface UserMapper {
     UserModel toEntity(UserRequestDTO dto);
 
     UserResponseDTO toDto(UserModel entity);
+
+    List<UserResponseDTO> toDtoList(List<UserModel> users);
 
 }
