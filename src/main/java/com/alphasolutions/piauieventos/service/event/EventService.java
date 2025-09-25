@@ -13,4 +13,5 @@ public interface EventService {
     List<EventResponseDTO> listEvents();
     EventResponseDTO findById(Long id);
     void registerUser(Long eventId, UserRegistrationDTO registrationDTO);
+    void unregisterUser(Long eventId, Long userId);
 }
