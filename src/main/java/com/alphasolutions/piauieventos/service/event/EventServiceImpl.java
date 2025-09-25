@@ -128,8 +128,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<UserResponseDTO> listRegisteredUsers(Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with ID: " + eventId));
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with ID: " + eventId);
+        }
 
         List<Subscription> subscriptions = subscriptionRepository.findByEventId(eventId);
 
