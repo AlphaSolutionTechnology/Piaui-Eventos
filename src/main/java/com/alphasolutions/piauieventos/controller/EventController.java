@@ -60,4 +60,12 @@ public class EventController {
         eventService.registerUser(eventId, registrationDTO);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/{eventId}/register/{userId}")
+    public ResponseEntity<Void> unregisterUser(
+            @PathVariable Long eventId,
+            @PathVariable Long userId) {
+        eventService.unregisterUser(eventId, userId);
+        return ResponseEntity.noContent().build();
+    }
 }
