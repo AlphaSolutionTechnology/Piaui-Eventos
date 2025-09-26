@@ -51,6 +51,7 @@ public class EventServiceImpl implements EventService {
         this.subscriptionRepository = subscriptionRepository;
     }
 
+    // This is an example where MapStruct IS USED
     @Override
     @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
@@ -129,17 +130,5 @@ public class EventServiceImpl implements EventService {
         subscription.setEvent(event);
 
         subscriptionRepository.save(subscription);
-    }
-
-    @Override
-    @Transactional
-    public void unregisterUser(Long eventId, Long userId) {
-        SubscriptionId subscriptionId = new SubscriptionId(userId, eventId);
-
-        if (! subscriptionRepository.existsById(subscriptionId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is not registered for this event.");
-        }
-
-        subscriptionRepository.deleteById(subscriptionId);
     }
 }
