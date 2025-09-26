@@ -3,10 +3,12 @@ package com.alphasolutions.piauieventos.service.event;
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
+import com.alphasolutions.piauieventos.dto.UserResponseDTO;
 import com.alphasolutions.piauieventos.exception.EventNotFoundException;
 import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
 import com.alphasolutions.piauieventos.mapper.EventLocationMapper;
 import com.alphasolutions.piauieventos.mapper.EventMapper;
+import com.alphasolutions.piauieventos.mapper.UserMapper;
 import com.alphasolutions.piauieventos.model.Event;
 import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.model.UserModel;
@@ -34,6 +36,7 @@ public class EventServiceImpl implements EventService {
     private final EventLocationMapper eventLocationMapper;
     private final UserRepository userRepository;
     private final SubscriptionRepository subscriptionRepository;
+    private final UserMapper userMapper;
 
     public EventServiceImpl(EventRepository eventRepository,
                             EventLocationRepository eventLocationRepository,
@@ -41,7 +44,8 @@ public class EventServiceImpl implements EventService {
                             EventLocationService eventLocationService,
                             EventLocationMapper eventLocationMapper,
                             UserRepository userRepository,
-                            SubscriptionRepository subscriptionRepository) {
+                            SubscriptionRepository subscriptionRepository,
+                            UserMapper userMapper) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventMapper = eventMapper;
@@ -49,17 +53,13 @@ public class EventServiceImpl implements EventService {
         this.eventLocationMapper = eventLocationMapper;
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.userMapper = userMapper;
     }
 
     @Override
-    @Transactional
     public EventResponseDTO create(EventRequestDTO dto) {
-        eventLocationMapper.eventLocationDtoToEventLocation(dto.getEventLocationDTO());
-        EventLocation eventLocation;
-        eventLocation = eventLocationService.addLocation(dto.getEventLocationDTO());
+        EventLocation eventLocation = eventLocationService.addLocation(dto.getEventLocationDTO());
         Event event = eventMapper.toEntity(dto, eventLocation);
-        event.setId(null);
-        event.setVersion(null);
         event.setLocation(eventLocation);
         Event savedEvent = eventRepository.save(event);
 
@@ -88,12 +88,7 @@ public class EventServiceImpl implements EventService {
         EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
                 .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id()));
 
-        existing.setName(dto.getName());
-        existing.setDescription(dto.getDescription());
-        existing.setImageUrl(dto.getImageUrl());
-        existing.setEventDate(dto.getEventDate());
-        existing.setEventType(dto.getEventType());
-        existing.setMaxSubs(dto.getMaxSubs());
+        eventMapper.updateFromDto(dto, existing);
         existing.setLocation(location);
 
         Event saved = eventRepository.save(existing);
@@ -132,14 +127,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
-    public void unregisterUser(Long eventId, Long userId) {
-        SubscriptionId subscriptionId = new SubscriptionId(userId, eventId);
-
-        if (! subscriptionRepository.existsById(subscriptionId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is not registered for this event.");
+    public List<UserResponseDTO> listRegisteredUsers(Long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with ID: " + eventId);
         }
 
-        subscriptionRepository.deleteById(subscriptionId);
+        List<Subscription> subscriptions = subscriptionRepository.findByEventId(eventId);
+
+        List<UserModel> users = subscriptions.stream()
+                .map(Subscription::getUser)
+                .toList();
+
+        return userMapper.toDtoList(users);
     }
 }

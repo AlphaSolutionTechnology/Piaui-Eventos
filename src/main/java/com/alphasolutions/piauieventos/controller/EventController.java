@@ -3,6 +3,7 @@ package com.alphasolutions.piauieventos.controller;
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
+import com.alphasolutions.piauieventos.dto.UserResponseDTO;
 import com.alphasolutions.piauieventos.service.event.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -61,11 +62,10 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{eventId}/register/{userId}")
-    public ResponseEntity<Void> unregisterUser(
-            @PathVariable Long eventId,
-            @PathVariable Long userId) {
-        eventService.unregisterUser(eventId, userId);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/{eventId}/registrations")
+    public ResponseEntity<List<UserResponseDTO>> listRegisteredUsers(
+            @PathVariable Long eventId) {
+        List<UserResponseDTO> users = eventService.listRegisteredUsers(eventId);
+        return ResponseEntity.ok(users);
     }
 }
