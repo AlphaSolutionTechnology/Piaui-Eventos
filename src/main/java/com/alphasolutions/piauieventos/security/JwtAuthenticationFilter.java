@@ -1,5 +1,6 @@
 package com.alphasolutions.piauieventos.security;
 
+import com.alphasolutions.piauieventos.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;

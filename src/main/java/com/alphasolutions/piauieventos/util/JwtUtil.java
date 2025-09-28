@@ -1,4 +1,4 @@
-package com.alphasolutions.piauieventos.security;
+package com.alphasolutions.piauieventos.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Claims;

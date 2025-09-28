@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "apikey",
+      "type": "java.lang.String",
+      "description": "api key for evolution-api ."
+    },
+    {
+      "name": "spring.apikey",
+      "type": "java.lang.String",
+      "description": "Description for spring.apikey."
+    }
+  ] }

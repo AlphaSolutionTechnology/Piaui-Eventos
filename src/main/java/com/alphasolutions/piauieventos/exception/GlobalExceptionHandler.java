@@ -24,4 +24,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String,String>> handleAuthenticationException(AuthenticationException authenticationException) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", authenticationException.getMessage()));
     }
+
+    @ExceptionHandler(WhatsappCommunicationException.class)
+    public ResponseEntity<Map<String,String>> handleWhatsappCommunicationException(WhatsappCommunicationException whatsappCommunicationException) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of("error", whatsappCommunicationException.getMessage()));
+    }
 }

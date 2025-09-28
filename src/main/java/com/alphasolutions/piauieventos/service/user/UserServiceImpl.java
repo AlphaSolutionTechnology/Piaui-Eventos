@@ -10,7 +10,7 @@ import com.alphasolutions.piauieventos.model.UserModel;
 import com.alphasolutions.piauieventos.model.UserRoleModel;
 import com.alphasolutions.piauieventos.repository.UserRepository;
 import com.alphasolutions.piauieventos.repository.UserRoleRepository;
-import com.alphasolutions.piauieventos.security.JwtUtil;
+import com.alphasolutions.piauieventos.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

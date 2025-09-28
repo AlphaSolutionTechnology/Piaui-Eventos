@@ -4,7 +4,7 @@ import com.alphasolutions.piauieventos.dto.LoginRequestDTO;
 import com.alphasolutions.piauieventos.dto.LoginResponseDTO;
 import com.alphasolutions.piauieventos.dto.RefreshRequestDTO;
 import com.alphasolutions.piauieventos.dto.RefreshResponseDTO;
-import com.alphasolutions.piauieventos.security.JwtUtil;
+import com.alphasolutions.piauieventos.util.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;

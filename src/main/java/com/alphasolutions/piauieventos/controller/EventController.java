@@ -4,6 +4,9 @@ import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import com.alphasolutions.piauieventos.service.event.EventService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,9 +38,8 @@ public class EventController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<EventResponseDTO>> listEvents() {
-        List<EventResponseDTO> events = eventService.listEvents();
-
+    public ResponseEntity<Page<EventResponseDTO>> listEvents(@PageableDefault(size = 10) Pageable pageable) {
+        Page<EventResponseDTO> events = eventService.listEvents(pageable);
         return ResponseEntity.ok(events);
     }
 

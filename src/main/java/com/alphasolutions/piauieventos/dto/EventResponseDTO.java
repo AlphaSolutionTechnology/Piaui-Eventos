@@ -1,6 +1,5 @@
 package com.alphasolutions.piauieventos.dto;
 
-import com.alphasolutions.piauieventos.model.Event;
 import java.time.LocalDateTime;
 import lombok.Data;
 
@@ -13,7 +12,8 @@ public class EventResponseDTO {
     LocalDateTime eventDate;
     String eventType;
     Integer maxSubs;
-    Long locationId;
+    EventLocationDTO eventLocation;
     Integer version;
+    Integer subscribersCount;
 
 }
