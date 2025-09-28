@@ -17,10 +17,15 @@ import com.alphasolutions.piauieventos.repository.EventLocationRepository;
 import com.alphasolutions.piauieventos.repository.SubscriptionRepository;
 import com.alphasolutions.piauieventos.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Limit;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -75,9 +80,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponseDTO> listEvents() {
-        List<Event> events = eventRepository.findAll();
-        return eventMapper.toDTO(events);
+    public Page<EventResponseDTO> listEvents(Pageable pageable) {
+        Page<Event> events = eventRepository.findAll(pageable);
+        return events.map(eventMapper::toDTO);
     }
 
     @Override
@@ -100,12 +105,26 @@ public class EventServiceImpl implements EventService {
         return eventMapper.toDTO(saved);
     }
 
+    private void fillSubscribersCount(EventResponseDTO dto, Long eventId) {
+        int count = (int) subscriptionRepository.countByEventId(eventId);
+        dto.setSubscribersCount(count);
+    }
+
+    private void fillSubscribersCount(List<EventResponseDTO> dtos, List<Event> events) {
+        for (int i = 0; i < dtos.size(); i++) {
+            EventResponseDTO dto = dtos.get(i);
+            Long eventId = events.get(i).getId();
+            fillSubscribersCount(dto, eventId);
+        }
+    }
+
     @Override
     public EventResponseDTO findById(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
-
-        return eventMapper.toDTO(event);
+        EventResponseDTO dto = eventMapper.toDTO(event);
+        fillSubscribersCount(dto, event.getId());
+        return dto;
     }
 
     @Override
@@ -141,5 +160,42 @@ public class EventServiceImpl implements EventService {
         }
 
         subscriptionRepository.deleteById(subscriptionId);
+    }
+
+    @Override
+    public List<EventResponseDTO> upcomingEvents() {
+        List<Event> events = eventRepository.findByEventDateGreaterThanEqualOrderByEventDateDesc(LocalDateTime.now(),Limit.of(5));
+        List<EventResponseDTO> dtos = eventMapper.toDTO(events);
+        fillSubscribersCount(dtos, events);
+        return dtos;
+    }
+
+    @Override
+    public List<EventResponseDTO> nextWeekEvents() {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime nextWeek = today.plusWeeks(1);
+        List<Event> events = eventRepository.findByEventDateBetweenOrderByEventDateAsc(today, nextWeek, PageRequest.of(0, 20));
+        List<EventResponseDTO> dtos = eventMapper.toDTO(events);
+        fillSubscribersCount(dtos, events);
+        return dtos;
+    }
+
+    @Override
+    public List<EventResponseDTO> nextMonthEvents() {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime nextMonth = today.plusMonths(1);
+        List<Event> events = eventRepository.findByEventDateBetweenOrderByEventDateAsc(today, nextMonth, PageRequest.of(0, 50));
+        List<EventResponseDTO> dtos = eventMapper.toDTO(events);
+        fillSubscribersCount(dtos, events);
+        return dtos;
+    }
+
+    @Override
+    public List<EventResponseDTO> mostSubscribedEvents() {
+        List<Long> eventList = subscriptionRepository.countTopSubscriptionsByEvent(Limit.of(5));
+        List<Event> events = eventRepository.findAllById(eventList);
+        List<EventResponseDTO> dtos = eventMapper.toDTO(events);
+        fillSubscribersCount(dtos, events);
+        return dtos;
     }
 }
