@@ -26,13 +26,14 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, UserMapper userMapper, RoleMapper roleMapper, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository     = userRepository;
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository, UserMapper userMapper,
+            RoleMapper roleMapper, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+        this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
-        this.userMapper         = userMapper;
-        this.roleMapper         = roleMapper;
-        this.passwordEncoder    = passwordEncoder;
-        this.jwtUtil           = jwtUtil;
+        this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -80,8 +81,7 @@ public class UserServiceImpl implements UserService {
                 userResponse.id(),
                 userResponse.name(),
                 userResponse.email(),
-                userResponse.phoneNumber()
-        );
+                userResponse.phoneNumber());
 
         return new UserCreationResultDTO(userData, accessToken, refreshToken);
     }
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
     public Map<String, Object> getCurrentUserInfo(String username) {
         // Busca o usuário por email ou telefone
         UserModel user;
-        
+
         if (username.contains("@")) {
             // É email
             user = userRepository.findByEmailWithRole(username)
@@ -114,8 +114,6 @@ public class UserServiceImpl implements UserService {
                 "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
                 "role", Map.of(
                         "id", roleId != null ? roleId : 0,
-                        "name", roleName
-                )
-        );
+                        "name", roleName));
     }
 }
