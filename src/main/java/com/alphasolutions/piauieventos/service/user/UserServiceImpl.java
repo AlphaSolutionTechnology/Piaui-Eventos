@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -82,5 +84,38 @@ public class UserServiceImpl implements UserService {
         );
 
         return new UserCreationResultDTO(userData, accessToken, refreshToken);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getCurrentUserInfo(String username) {
+        // Busca o usuário por email ou telefone
+        UserModel user;
+        
+        if (username.contains("@")) {
+            // É email
+            user = userRepository.findByEmailWithRole(username)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        } else {
+            // É telefone
+            String digits = username.replaceAll("\\D", "");
+            user = userRepository.findByPhoneWithRole(digits)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        }
+
+        // Retorna informações do usuário incluindo role
+        String roleName = user.getUserRole() != null ? user.getUserRole().getRoleName() : "USER";
+        Integer roleId = user.getUserRole() != null ? user.getUserRole().getRoleId() : null;
+
+        return Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
+                "role", Map.of(
+                        "id", roleId != null ? roleId : 0,
+                        "name", roleName
+                )
+        );
     }
 }
