@@ -30,6 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // Skip JWT processing for public endpoints
+        String path = request.getRequestURI();
+        if (isPublicPath(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String jwt = extractTokenFromHeader(request);
         if (jwt == null) {
             jwt = extractTokenFromCookies(request);
@@ -37,19 +44,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String username = null;
         if (jwt != null) {
-            username = jwtUtil.getUsernameFromToken(jwt);
+            try {
+                username = jwtUtil.getUsernameFromToken(jwt);
+            } catch (Exception e) {
+                // Invalid token, continue without authentication
+            }
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if (jwtUtil.validateToken(jwt)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            try {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtUtil.validateToken(jwt)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // User not found or validation failed, continue without authentication
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isPublicPath(String path) {
+        return path.startsWith("/api/auth/") ||
+               path.startsWith("/api/events") ||
+               path.startsWith("/api/whatsapp") ||
+               path.startsWith("/v3/api-docs") ||
+               path.startsWith("/swagger-ui") ||
+               (path.equals("/api/user") || path.startsWith("/api/user?"));
     }
 
     private String extractTokenFromHeader(HttpServletRequest request) {

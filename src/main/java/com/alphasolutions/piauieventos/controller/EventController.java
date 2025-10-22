@@ -30,7 +30,7 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @DeleteMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         eventService.delete(id);
 
@@ -43,13 +43,13 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
-    @PutMapping(value = "/{id}",consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventResponseDTO> updateEvent(@PathVariable Long id, @RequestBody EventRequestDTO dto) {
         EventResponseDTO response = eventService.update(id, dto);
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "/{id}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<EventResponseDTO> findEventById(@PathVariable Long id) {
         EventResponseDTO response = eventService.findById(id);
         return ResponseEntity.ok(response);
