@@ -16,22 +16,30 @@ import com.alphasolutions.piauieventos.repository.EventRepository;
 import com.alphasolutions.piauieventos.repository.EventLocationRepository;
 import com.alphasolutions.piauieventos.repository.SubscriptionRepository;
 import com.alphasolutions.piauieventos.repository.UserRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional
 public class EventServiceImpl implements EventService {
-
+    private final RestTemplate restTemplate;
+    private final HttpHeaders httpHeaders;
+    @Value("${simpla.key}")
+    private String symplaToken;
     private final EventRepository eventRepository;
     private final EventLocationRepository eventLocationRepository;
     private final EventMapper eventMapper;
@@ -46,7 +54,7 @@ public class EventServiceImpl implements EventService {
                             EventLocationService eventLocationService,
                             EventLocationMapper eventLocationMapper,
                             UserRepository userRepository,
-                            SubscriptionRepository subscriptionRepository) {
+                            SubscriptionRepository subscriptionRepository, RestTemplate restTemplate, HttpHeaders httpHeaders) {
         this.eventRepository = eventRepository;
         this.eventLocationRepository = eventLocationRepository;
         this.eventMapper = eventMapper;
@@ -54,6 +62,8 @@ public class EventServiceImpl implements EventService {
         this.eventLocationMapper = eventLocationMapper;
         this.userRepository = userRepository;
         this.subscriptionRepository = subscriptionRepository;
+        this.restTemplate = restTemplate;
+        this.httpHeaders = httpHeaders;
     }
 
     @Override
@@ -197,5 +207,38 @@ public class EventServiceImpl implements EventService {
         List<EventResponseDTO> dtos = eventMapper.toDTO(events);
         fillSubscribersCount(dtos, events);
         return dtos;
+    }
+
+    @Override
+    public void feedEvent() {
+        String dateRange = "2025-10-21,2025-11-21";
+        String state = "PI"; // Piauí
+
+        String symplaUrl = "https://api.sympla.com.br/public/v1.5.1/events?d=" + dateRange + "&s=" + state + "&page=1&page_size=100";
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("s_token", symplaToken);
+        httpHeaders.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<String> httpEntity = new HttpEntity<>(httpHeaders);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    symplaUrl,
+                    HttpMethod.GET,
+                    httpEntity,
+                    String.class
+            );
+
+            System.out.println("=== Sympla API Response (Piauí Events) ===");
+            System.out.println("Status Code: " + response.getStatusCode());
+            System.out.println("Response Body:");
+            System.out.println(response.getBody());
+            System.out.println("==========================================");
+
+        } catch (Exception e) {
+            System.err.println("Error calling Sympla API: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

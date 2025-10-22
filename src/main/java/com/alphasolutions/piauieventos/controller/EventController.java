@@ -70,4 +70,10 @@ public class EventController {
         eventService.unregisterUser(eventId, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping
+    public ResponseEntity<String> feedEvent() {
+        eventService.feedEvent();
+        return ResponseEntity.ok("Feed process started");
+    }
 }

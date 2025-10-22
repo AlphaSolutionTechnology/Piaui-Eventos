@@ -21,4 +21,5 @@ public interface EventService {
     List<EventResponseDTO> nextWeekEvents();
     List<EventResponseDTO> nextMonthEvents();
     List<EventResponseDTO> mostSubscribedEvents();
+    void feedEvent();
 }

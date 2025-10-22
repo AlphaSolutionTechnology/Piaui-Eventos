@@ -9,5 +9,10 @@
       "name": "spring.apikey",
       "type": "java.lang.String",
       "description": "Description for spring.apikey."
+    },
+    {
+      "name": "simpla.key",
+      "type": "java.lang.String",
+      "description": "Description for simpla.key."
     }
   ] }

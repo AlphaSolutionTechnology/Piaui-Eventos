@@ -4,6 +4,7 @@ import com.alphasolutions.piauieventos.dto.UserCreationResultDTO;
 import com.alphasolutions.piauieventos.dto.UserCreatedResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRequestDTO;
 import com.alphasolutions.piauieventos.dto.UserResponseDTO;
+import com.alphasolutions.piauieventos.exception.UserNotFoundException;
 import com.alphasolutions.piauieventos.mapper.RoleMapper;
 import com.alphasolutions.piauieventos.mapper.UserMapper;
 import com.alphasolutions.piauieventos.model.UserModel;
@@ -11,6 +12,9 @@ import com.alphasolutions.piauieventos.model.UserRoleModel;
 import com.alphasolutions.piauieventos.repository.UserRepository;
 import com.alphasolutions.piauieventos.repository.UserRoleRepository;
 import com.alphasolutions.piauieventos.util.JwtUtil;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,34 +90,14 @@ public class UserServiceImpl implements UserService {
         return new UserCreationResultDTO(userData, accessToken, refreshToken);
     }
 
-    @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getCurrentUserInfo(String username) {
-        // Busca o usuário por email ou telefone
-        UserModel user;
+    @Override
+    public Map<String, Object> getCurrentUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
 
-        if (username.contains("@")) {
-            // É email
-            user = userRepository.findByEmailWithRole(username)
-                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        } else {
-            // É telefone
-            String digits = username.replaceAll("\\D", "");
-            user = userRepository.findByPhoneWithRole(digits)
-                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        }
-
-        // Retorna informações do usuário incluindo role
-        String roleName = user.getUserRole() != null ? user.getUserRole().getRoleName() : "USER";
-        Integer roleId = user.getUserRole() != null ? user.getUserRole().getRoleId() : null;
-
-        return Map.of(
-                "id", user.getId(),
-                "name", user.getName(),
-                "email", user.getEmail(),
-                "phoneNumber", user.getPhoneNumber() != null ? user.getPhoneNumber() : "",
-                "role", Map.of(
-                        "id", roleId != null ? roleId : 0,
-                        "name", roleName));
+        UserModel authenticatedUser =  userRepository.findByEmail(user.getUsername()).orElseThrow(() -> new UserNotFoundException("Usuário não encontrado"));
+        UserResponseDTO userDto = userMapper.toDto(authenticatedUser);
+        return Map.of("user", userDto.name(),"role", roleMapper.toDto(authenticatedUser.getUserRole()).roleName());
     }
 }
