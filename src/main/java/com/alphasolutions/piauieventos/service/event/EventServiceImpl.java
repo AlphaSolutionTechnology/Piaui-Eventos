@@ -211,10 +211,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public void feedEvent() {
-        String dateRange = "2025-10-21,2025-11-21";
-        String state = "PI"; // Piauí
+        String dateRange = "2025-01-01,2025-12-31";
 
-        String symplaUrl = "https://api.sympla.com.br/public/v1.5.1/events?d=" + dateRange + "&s=" + state + "&page=1&page_size=100";
+        String symplaUrl = "https://api.sympla.com.br/public/v4/events"
+                + "?state=PI"
+                + "&range=" + dateRange
+                + "&page=1"
+                + "&limit=100";
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("s_token", symplaToken);
@@ -230,11 +233,64 @@ public class EventServiceImpl implements EventService {
                     String.class
             );
 
-            System.out.println("=== Sympla API Response (Piauí Events) ===");
+            System.out.println("=== Sympla API Response (Eventos do Piauí) ===");
             System.out.println("Status Code: " + response.getStatusCode());
             System.out.println("Response Body:");
             System.out.println(response.getBody());
-            System.out.println("==========================================");
+            System.out.println("==============================================");
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode rootNode = objectMapper.readTree(response.getBody());
+                JsonNode dataNode = rootNode.get("data");
+
+                if (dataNode != null && dataNode.isArray()) {
+                    System.out.println("\n=== Detalhes dos Eventos do Piauí ===");
+                    int eventCount = 0;
+
+                    for (JsonNode eventNode : dataNode) {
+                        eventCount++;
+                        System.out.println("\nEvento #" + eventCount + ":");
+
+                        if (eventNode.has("id")) {
+                            System.out.println("  ID: " + eventNode.get("id").asText());
+                        }
+                        if (eventNode.has("name")) {
+                            System.out.println("  Nome: " + eventNode.get("name").asText());
+                        }
+                        if (eventNode.has("start_date")) {
+                            System.out.println("  Data Início: " + eventNode.get("start_date").asText());
+                        }
+                        if (eventNode.has("end_date")) {
+                            System.out.println("  Data Fim: " + eventNode.get("end_date").asText());
+                        }
+
+                        JsonNode addressNode = eventNode.get("address");
+                        if (addressNode != null) {
+                            if (addressNode.has("city")) {
+                                System.out.println("  Cidade: " + addressNode.get("city").asText());
+                            }
+                            if (addressNode.has("state")) {
+                                System.out.println("  Estado: " + addressNode.get("state").asText());
+                            }
+                        }
+
+                        if (eventNode.has("url")) {
+                            System.out.println("  URL: " + eventNode.get("url").asText());
+                        }
+                    }
+
+                    if (rootNode.has("total")) {
+                        System.out.println("\n--- Informações de Paginação ---");
+                        System.out.println("Total de eventos: " + rootNode.get("total").asInt());
+                        System.out.println("Página atual: " + rootNode.get("page").asInt());
+                        System.out.println("Total de páginas: " + rootNode.get("total_page").asInt());
+                        System.out.println("Eventos por página: " + rootNode.get("limit").asInt());
+                    }
+
+                    System.out.println("\n======================================");
+                }
+            }
 
         } catch (Exception e) {
             System.err.println("Error calling Sympla API: " + e.getMessage());
