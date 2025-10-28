@@ -17,6 +17,8 @@ import com.alphasolutions.piauieventos.repository.EventLocationRepository;
 import com.alphasolutions.piauieventos.repository.SubscriptionRepository;
 import com.alphasolutions.piauieventos.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -75,9 +77,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponseDTO> listEvents() {
-        List<Event> events = eventRepository.findAll();
-        return eventMapper.toDTO(events);
+    public Page<EventResponseDTO> listEvents(Pageable pageable) {
+        Page<Event> events = eventRepository.findAll(pageable);
+        return events.map(eventMapper::toDTO);
     }
 
     @Override
