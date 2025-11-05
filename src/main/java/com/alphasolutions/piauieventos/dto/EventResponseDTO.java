@@ -1,6 +1,6 @@
 package com.alphasolutions.piauieventos.dto;
 
-import com.alphasolutions.piauieventos.model.Event;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDateTime;
 import lombok.Data;
 
@@ -10,10 +10,13 @@ public class EventResponseDTO {
     String name;
     String description;
     String imageUrl;
+
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     LocalDateTime eventDate;
+
     String eventType;
     Integer maxSubs;
-    Long locationId;
+    EventLocationDTO location;
     Integer version;
-
+    Integer subscribedCount;
 }

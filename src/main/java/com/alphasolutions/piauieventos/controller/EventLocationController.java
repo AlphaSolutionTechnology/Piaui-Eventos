@@ -7,7 +7,6 @@ import com.alphasolutions.piauieventos.model.EventLocation;
 import com.alphasolutions.piauieventos.service.event.EventLocationService;
 import com.alphasolutions.piauieventos.service.viacep.ViaCepService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +24,13 @@ public class EventLocationController {
         this.eventLocationMapper = eventLocationMapper;
     }
 
-    @GetMapping(value = "/{cep}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/{cep}")
     public ResponseEntity<?> addAddress(@PathVariable String cep) {
         ViaCepResponse viaCepResponse = viaCepService.getAddressByCep(cep);
         return ResponseEntity.ok(viaCepResponse);
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<EventLocationDTO> createLocation(@RequestBody EventLocationDTO dto) {
         EventLocation saved = eventLocationService.addLocation(dto);
         EventLocationDTO response = eventLocationMapper.eventLocationToEventLocation(saved);

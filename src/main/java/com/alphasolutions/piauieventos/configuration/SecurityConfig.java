@@ -39,10 +39,26 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Endpoints públicos de autenticação
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/auth/logout").permitAll()
+
+                        // Criação de usuário é pública, mas /me precisa de autenticação
                         .requestMatchers(HttpMethod.POST, "/api/user").permitAll()
-                        .requestMatchers("/api/events/**").permitAll() // ✅ Liberar todos os endpoints de eventos
+                        .requestMatchers("/api/user/me").authenticated()
+
+                        // Eventos: leitura pública, escrita protegida
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/events/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/events/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").authenticated()
+
+                        // Localização: consulta CEP pública, criar location protegida
+                        .requestMatchers(HttpMethod.GET, "/api/location/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/location/**").authenticated()
+
+                        // Swagger/OpenAPI público
                         .requestMatchers(
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
@@ -50,6 +66,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+
                         // Demais requisições precisam estar autenticadas
                         .anyRequest().authenticated()
                 )

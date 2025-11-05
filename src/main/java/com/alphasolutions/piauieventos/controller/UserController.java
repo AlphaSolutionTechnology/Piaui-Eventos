@@ -4,7 +4,6 @@ import com.alphasolutions.piauieventos.dto.UserRequestDTO;
 import com.alphasolutions.piauieventos.dto.UserResponseDTO;
 import com.alphasolutions.piauieventos.service.user.UserService;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +16,17 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping
     public ResponseEntity<UserResponseDTO> createUser(@RequestBody UserRequestDTO dto) {
         UserResponseDTO response = userService.createUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDTO> getCurrentUser() {
+
+        UserResponseDTO response = userService.getCurrentUser();
+        System.out.println(response.toString());
+        return ResponseEntity.ok(response);
     }
 }

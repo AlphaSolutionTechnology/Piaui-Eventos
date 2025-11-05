@@ -8,13 +8,13 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {EventLocationMapper.class})
 public interface EventMapper {
 
     @Mapping(target = "location", source = "location")
     Event toEntity(EventRequestDTO dto, EventLocation location);
 
-    @Mapping(target = "locationId", source = "location.id")
+    @Mapping(target = "location", source = "location")
     EventResponseDTO toDTO(Event event);
 
     List<EventResponseDTO> toDTO(List<Event> events);

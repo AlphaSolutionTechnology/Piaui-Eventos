@@ -4,11 +4,7 @@ public record UserResponseDTO (
         Long id,
         String name,
         String email,
-        String phoneNumber
-) {
-    public record RoleDTO (
-            Integer roleId,
-            String roleName
-    ) {}
-}
+        String phoneNumber,
+        RoleDTO role
+) {}
 

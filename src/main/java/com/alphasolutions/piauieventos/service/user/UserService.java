@@ -8,4 +8,5 @@ public interface UserService {
 
     UserResponseDTO createUser(UserRequestDTO dto);
     UserCreationResultDTO createUserWithTokens(UserRequestDTO dto);
+    UserResponseDTO getCurrentUser();
 }

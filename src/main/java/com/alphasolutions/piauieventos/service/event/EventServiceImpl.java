@@ -23,7 +23,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 
 @Service
 @Transactional
@@ -65,7 +64,9 @@ public class EventServiceImpl implements EventService {
         event.setLocation(eventLocation);
         Event savedEvent = eventRepository.save(event);
 
-        return eventMapper.toDTO(savedEvent);
+        EventResponseDTO response = eventMapper.toDTO(savedEvent);
+        response.setSubscribedCount(0); // Novo evento não tem inscritos
+        return response;
     }
 
     @Override
@@ -79,7 +80,12 @@ public class EventServiceImpl implements EventService {
     @Override
     public Page<EventResponseDTO> listEvents(Pageable pageable) {
         Page<Event> events = eventRepository.findAll(pageable);
-        return events.map(eventMapper::toDTO);
+        return events.map(event -> {
+            EventResponseDTO dto = eventMapper.toDTO(event);
+            Long subscribedCount = subscriptionRepository.countByEventId(event.getId());
+            dto.setSubscribedCount(subscribedCount.intValue());
+            return dto;
+        });
     }
 
     @Override
@@ -99,7 +105,10 @@ public class EventServiceImpl implements EventService {
         existing.setLocation(location);
 
         Event saved = eventRepository.save(existing);
-        return eventMapper.toDTO(saved);
+        EventResponseDTO response = eventMapper.toDTO(saved);
+        Long subscribedCount = subscriptionRepository.countByEventId(id);
+        response.setSubscribedCount(subscribedCount.intValue());
+        return response;
     }
 
     @Override
@@ -107,7 +116,11 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        return eventMapper.toDTO(event);
+        EventResponseDTO dto = eventMapper.toDTO(event);
+        Long subscribedCount = subscriptionRepository.countByEventId(id);
+        dto.setSubscribedCount(subscribedCount.intValue());
+
+        return dto;
     }
 
     @Override

@@ -9,10 +9,9 @@ import java.util.Date;
 @Component
 public class JwtUtil {
     private final String jwtSecret = "ganimedes*2023anonimooperationrandom#value";
-    private final long jwtExpirationMs = 3600000;
-    private final long refreshExpirationMs = 604800000;
 
     public String generateToken(String username) {
+        long jwtExpirationMs = 3600000;
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
@@ -22,6 +21,7 @@ public class JwtUtil {
     }
 
     public String generateRefreshToken(String username) {
+        long refreshExpirationMs = 604800000;
         return Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
