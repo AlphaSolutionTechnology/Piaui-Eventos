@@ -63,6 +63,22 @@ public class EventController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Page<EventResponseDTO>> eventsCreatedByUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = 10, sort = "eventDate") Pageable pageable) {
+        Page<EventResponseDTO> response = eventService.findByUserId(userId, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/subscribed/user/{userId}")
+    public ResponseEntity<Page<EventResponseDTO>> eventsSubscribedByUser(
+            @PathVariable Long userId,
+            @PageableDefault(size = 10, sort = "eventDate") Pageable pageable){
+        Page<EventResponseDTO> response = eventService.findSubscribedEventsByUserId(userId, pageable);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{eventId}/register/{userId}")
     public ResponseEntity<Void> unregisterUser(
             @PathVariable Long eventId,

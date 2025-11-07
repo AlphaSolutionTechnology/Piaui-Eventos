@@ -17,6 +17,7 @@ public class EventRequestDTO {
     LocalDateTime eventDate;
     String eventType;
     Integer maxSubs;
+    Long createdBy;
     @JsonProperty("location")
     EventLocationDTO eventLocationDTO;
 

@@ -23,6 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 
 @Service
 @Transactional
@@ -62,6 +64,7 @@ public class EventServiceImpl implements EventService {
         event.setId(null);
         event.setVersion(null);
         event.setLocation(eventLocation);
+        event.setCreatedBy(dto.getCreatedBy());
         Event savedEvent = eventRepository.save(event);
 
         EventResponseDTO response = eventMapper.toDTO(savedEvent);
@@ -124,12 +127,23 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public Page<EventResponseDTO> findByUserId(Long userId, Pageable pageable) {
+        Page<Event> events = eventRepository.findAllByCreatedBy(userId, pageable);
+        return events.map(event -> {
+            EventResponseDTO dto = eventMapper.toDTO(event);
+            Long subscribedCount = subscriptionRepository.countByEventId(event.getId());
+            dto.setSubscribedCount(subscribedCount.intValue());
+            return dto;
+        });
+    }
+
+    @Override
     @Transactional
     public void registerUser(Long eventId, UserRegistrationDTO registrationDTO) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Event not found with ID: " + eventId));
 
-        UserModel user = userRepository.findById(registrationDTO.userId())
+        UserModel user = userRepository.findById(registrationDTO.userId().longValue())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + registrationDTO.userId()));
 
         SubscriptionId subscriptionId = new SubscriptionId(user.getId(), event.getId());
@@ -156,5 +170,30 @@ public class EventServiceImpl implements EventService {
         }
 
         subscriptionRepository.deleteById(subscriptionId);
+    }
+
+    @Override
+    public Page<EventResponseDTO> findSubscribedEventsByUserId(Long userId, Pageable pageable) {
+        UserModel user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with ID: " + userId));
+
+        List<Subscription> subscriptions = subscriptionRepository.findAllByUser(user);
+        List<Event> subscribedEvents = subscriptions.stream()
+                .map(Subscription::getEvent)
+                .toList();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), subscribedEvents.size());
+
+        List<EventResponseDTO> eventDTOs = subscribedEvents.subList(start, end).stream()
+                .map(event -> {
+                    EventResponseDTO dto = eventMapper.toDTO(event);
+                    Long subscribedCount = subscriptionRepository.countByEventId(event.getId());
+                    dto.setSubscribedCount(subscribedCount.intValue());
+                    return dto;
+                })
+                .toList();
+
+        return new org.springframework.data.domain.PageImpl<>(eventDTOs, pageable, subscribedEvents.size());
     }
 }

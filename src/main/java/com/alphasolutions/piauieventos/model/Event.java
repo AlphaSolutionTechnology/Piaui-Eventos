@@ -33,6 +33,9 @@ public class Event {
     @Column(name = "max_subs")
     private Integer maxSubs;
 
+    @Column(name = "created_by")
+    private Long createdBy;
+
     @Version
     @Column(name = "version")
     private Integer version;
