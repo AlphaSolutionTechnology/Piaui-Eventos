@@ -2,6 +2,8 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.UserRequestDTO;
 import com.alphasolutions.piauieventos.dto.UserResponseDTO;
+import com.alphasolutions.piauieventos.dto.UserUpdateDTO;
+import com.alphasolutions.piauieventos.dto.PasswordUpdateDTO;
 import com.alphasolutions.piauieventos.service.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +26,19 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<UserResponseDTO> getCurrentUser() {
-
         UserResponseDTO response = userService.getCurrentUser();
-        System.out.println(response.toString());
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UserResponseDTO> updateUser(@RequestBody UserUpdateDTO dto) {
+        UserResponseDTO response = userService.updateUser(dto);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody PasswordUpdateDTO dto) {
+        userService.updatePassword(dto);
+        return ResponseEntity.noContent().build();
     }
 }

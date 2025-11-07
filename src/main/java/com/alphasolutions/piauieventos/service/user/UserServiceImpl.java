@@ -4,6 +4,8 @@ import com.alphasolutions.piauieventos.dto.UserCreationResultDTO;
 import com.alphasolutions.piauieventos.dto.UserCreatedResponseDTO;
 import com.alphasolutions.piauieventos.dto.UserRequestDTO;
 import com.alphasolutions.piauieventos.dto.UserResponseDTO;
+import com.alphasolutions.piauieventos.dto.UserUpdateDTO;
+import com.alphasolutions.piauieventos.dto.PasswordUpdateDTO;
 import com.alphasolutions.piauieventos.mapper.RoleMapper;
 import com.alphasolutions.piauieventos.mapper.UserMapper;
 import com.alphasolutions.piauieventos.model.UserModel;
@@ -101,5 +103,75 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
         return userMapper.toDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDTO updateUser(UserUpdateDTO dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new UsernameNotFoundException("Usuário não autenticado");
+        }
+
+        String currentEmail = authentication.getName();
+        UserModel user = userRepository.findByEmail(currentEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + currentEmail));
+
+        // Validar se o email já existe (caso esteja sendo alterado)
+        if (dto.email() != null && !dto.email().equals(currentEmail)) {
+            if (userRepository.existsByEmail(dto.email())) {
+                throw new IllegalArgumentException("Email já cadastrado");
+            }
+            user.setEmail(dto.email());
+        }
+
+        if (dto.name() != null && !dto.name().isBlank()) {
+            user.setName(dto.name());
+        }
+
+        if (dto.phoneNumber() != null) {
+            user.setPhoneNumber(dto.phoneNumber());
+        }
+
+        UserModel updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateDTO dto) {
+        if (dto.currentPassword() == null || dto.currentPassword().isBlank()) {
+            throw new IllegalArgumentException("Senha atual é obrigatória");
+        }
+        if (dto.newPassword() == null || dto.newPassword().isBlank()) {
+            throw new IllegalArgumentException("Nova senha é obrigatória");
+        }
+        if (dto.newPassword().length() < 6) {
+            throw new IllegalArgumentException("Nova senha deve ter no mínimo 6 caracteres");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new UsernameNotFoundException("Usuário não autenticado");
+        }
+
+        String email = authentication.getName();
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
+
+        // Verificar se a senha atual está correta
+        if (!passwordEncoder.matches(dto.currentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Senha atual incorreta");
+        }
+
+        // Verificar se a nova senha é diferente da atual
+        if (passwordEncoder.matches(dto.newPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("Nova senha deve ser diferente da senha atual");
+        }
+
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        userRepository.save(user);
     }
 }
