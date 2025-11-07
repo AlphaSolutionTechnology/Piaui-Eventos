@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.service.event;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import com.alphasolutions.piauieventos.exception.EventNotFoundException;
 import com.alphasolutions.piauieventos.exception.LocationNotFoundException;
@@ -20,6 +21,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -96,16 +100,92 @@ public class EventServiceImpl implements EventService {
         Event existing = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
 
-        EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
-                .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id()));
+        // Validação de segurança: apenas o criador pode editar
+        if (dto.getCreatedBy() != null && !existing.getCreatedBy().equals(dto.getCreatedBy())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this event");
+        }
 
-        existing.setName(dto.getName());
-        existing.setDescription(dto.getDescription());
-        existing.setImageUrl(dto.getImageUrl());
-        existing.setEventDate(dto.getEventDate());
-        existing.setEventType(dto.getEventType());
-        existing.setMaxSubs(dto.getMaxSubs());
-        existing.setLocation(location);
+        // Atualizar location se fornecido
+        if (dto.getEventLocationDTO() != null && dto.getEventLocationDTO().id() != null) {
+            EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
+                    .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id()));
+            existing.setLocation(location);
+        }
+
+        // Atualização parcial - apenas campos não nulos são atualizados
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            existing.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
+        }
+        if (dto.getImageUrl() != null) {
+            existing.setImageUrl(dto.getImageUrl());
+        }
+        if (dto.getEventDate() != null) {
+            existing.setEventDate(dto.getEventDate());
+        }
+        if (dto.getEventType() != null && !dto.getEventType().isBlank()) {
+            existing.setEventType(dto.getEventType());
+        }
+        if (dto.getMaxSubs() != null) {
+            existing.setMaxSubs(dto.getMaxSubs());
+        }
+
+        Event saved = eventRepository.save(existing);
+        EventResponseDTO response = eventMapper.toDTO(saved);
+        Long subscribedCount = subscriptionRepository.countByEventId(id);
+        response.setSubscribedCount(subscribedCount.intValue());
+        return response;
+    }
+
+    @Override
+    public EventResponseDTO updateEventSecure(Long id, EventUpdateDTO dto) {
+        // Obter usuário autenticado
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+
+        String email = authentication.getName();
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+
+        // Buscar evento
+        Event existing = eventRepository.findById(id)
+                .orElseThrow(() -> new EventNotFoundException("Event not found with id: " + id));
+
+        // Validação de segurança: apenas o criador pode editar
+        if (!existing.getCreatedBy().equals(user.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not authorized to edit this event");
+        }
+
+        // Atualizar location se fornecido
+        if (dto.getEventLocationDTO() != null && dto.getEventLocationDTO().id() != null) {
+            EventLocation location = eventLocationRepository.findById(dto.getEventLocationDTO().id())
+                    .orElseThrow(() -> new LocationNotFoundException("Location not found with id: " + dto.getEventLocationDTO().id()));
+            existing.setLocation(location);
+        }
+
+        // Atualização parcial - apenas campos não nulos são atualizados
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            existing.setName(dto.getName());
+        }
+        if (dto.getDescription() != null) {
+            existing.setDescription(dto.getDescription());
+        }
+        if (dto.getImageUrl() != null) {
+            existing.setImageUrl(dto.getImageUrl());
+        }
+        if (dto.getEventDate() != null) {
+            existing.setEventDate(dto.getEventDate());
+        }
+        if (dto.getEventType() != null && !dto.getEventType().isBlank()) {
+            existing.setEventType(dto.getEventType());
+        }
+        if (dto.getMaxSubs() != null) {
+            existing.setMaxSubs(dto.getMaxSubs());
+        }
 
         Event saved = eventRepository.save(existing);
         EventResponseDTO response = eventMapper.toDTO(saved);

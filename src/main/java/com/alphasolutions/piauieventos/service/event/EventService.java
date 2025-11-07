@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.service.event;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface EventService {
     EventResponseDTO create(EventRequestDTO dto);
     EventResponseDTO update(Long id, EventRequestDTO dto);
+    EventResponseDTO updateEventSecure(Long id, EventUpdateDTO dto);
     void delete(Long id);
     Page<EventResponseDTO> listEvents(Pageable pageable);
     EventResponseDTO findById(Long id);

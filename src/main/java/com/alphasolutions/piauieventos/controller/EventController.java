@@ -2,6 +2,7 @@ package com.alphasolutions.piauieventos.controller;
 
 import com.alphasolutions.piauieventos.dto.EventRequestDTO;
 import com.alphasolutions.piauieventos.dto.EventResponseDTO;
+import com.alphasolutions.piauieventos.dto.EventUpdateDTO;
 import com.alphasolutions.piauieventos.dto.UserRegistrationDTO;
 import com.alphasolutions.piauieventos.service.event.EventService;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,12 @@ public class EventController {
         EventResponseDTO response = eventService.update(id, dto);
         return ResponseEntity.ok(response);
     }
+    @PatchMapping("/{id}")
+    public ResponseEntity<EventResponseDTO> updateEventPartial(@PathVariable Long id, @RequestBody EventUpdateDTO dto) {
+        EventResponseDTO response = eventService.updateEventSecure(id, dto);
+        return ResponseEntity.ok(response);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDTO> findEventById(@PathVariable Long id) {
